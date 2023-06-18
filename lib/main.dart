@@ -1,5 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:watchalong/constants/theme.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:watchalong/ui/videos.dart';
+import 'dart:io';
+import 'package:crypto/crypto.dart';
 
 void main() {
   runApp(const MyApp());
@@ -28,6 +34,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int currentIndex = 0;
+  FilePickerResult? result;
+  String? md5Res;
 
   @override
   Widget build(BuildContext context) {
@@ -35,11 +43,32 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: IndexedStack(index: currentIndex, children: const [
+      body: IndexedStack(index: currentIndex, children: [
         Center(
-          child: Text('data'),
+          child: Column(
+            children: [
+              ElevatedButton(
+                child: const Text('Pick a file'),
+                onPressed: () async {
+                  result =
+                      await FilePicker.platform.pickFiles(type: FileType.video);
+                  final fileBytes =
+                      await File(result!.files.single.path!).readAsBytes();
+                  final checksum = md5.convert(fileBytes).toString();
+                  md5Res = checksum;
+                  setState(() {});
+                  // if (mounted) {
+                  //   Navigator.push(context, MaterialPageRoute(builder: ((context) {
+                  //     return Videos(filePath: result!.files.single.path!);
+                  //   })));
+                  // }
+                },
+              ),
+              Text(md5Res ?? 'searching')
+            ],
+          ),
         ),
-        Center(
+        const Center(
           child: Text('data1'),
         )
       ]),
