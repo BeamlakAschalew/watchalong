@@ -1,11 +1,12 @@
-import 'dart:io';
 import 'package:better_player/better_player.dart';
 import 'package:flutter/material.dart';
-//import 'package:video_viewer/video_viewer.dart';
+import 'package:watchalong/models/room.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class Videos extends StatefulWidget {
-  const Videos({super.key, required this.filePath});
+  const Videos({super.key, required this.filePath, required this.room});
   final String filePath;
+  final Room room;
 
   @override
   State<Videos> createState() => _VideosState();
@@ -19,6 +20,36 @@ class _VideosState extends State<Videos> {
     maxBufferMs: 240000,
     minBufferMs: 120000,
   );
+
+  void socketConn() {
+    // Data of the created room
+    var roomData = {
+      'createdAt': '2:19 PM',
+      'roomID': widget.room.roomID,
+      'audience': [],
+      'romName': widget.room.roomName,
+      'time': widget.room.time,
+      'createdBy': 'naol',
+    };
+
+    // 1️⃣ Configure socket connection
+    var socket = IO.io('http://watchalong.doniverse.net');
+
+    // 2️⃣ Establish socket connection
+    socket.on('connect', (_) {
+      // 3️⃣ If this user is room creator, emit the 'createRoom' event
+      // Send roomData alongside
+      socket.emit('createRoom', roomData);
+    });
+
+    // 4️⃣ 'secondStream' event is emitted as the timer counts
+    socket.on('secondStream', (msg) {
+      // msg - is an integer - it is the stream of seconds emitted
+      // from the server
+      // Use it to progress play
+      var secondsStream = msg;
+    });
+  }
 
   @override
   void initState() {
@@ -65,6 +96,9 @@ class _VideosState extends State<Videos> {
     );
     _betterPlayerController = BetterPlayerController(betterPlayerConfiguration);
     _betterPlayerController.setupDataSource(dataSource);
+    // int dur = _betterPlayerController
+    //     .videoPlayerController!.value.duration!.inSeconds;
+    // print(dur);
   }
 
   @override

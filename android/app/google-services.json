@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "772452654317",
+    "project_id": "watchalong-967fb",
+    "storage_bucket": "watchalong-967fb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:772452654317:android:42a81529dff32432dd00e4",
+        "android_client_info": {
+          "package_name": "com.example.watchalong"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "772452654317-3u9a91k9n3fi5bqgo1ovpq3470i50dpp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLgVGTrc3rlniIPq7dgLYb6mDtKPs3W9Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "772452654317-3u9a91k9n3fi5bqgo1ovpq3470i50dpp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

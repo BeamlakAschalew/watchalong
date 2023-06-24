@@ -1,38 +1,90 @@
-import 'dart:convert';
-
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:watchalong/constants/theme.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:watchalong/ui/videos.dart';
 import 'dart:io';
 import 'package:crypto/crypto.dart';
+import 'package:watchalong/screens/create_join_rooms.dart';
+
+import 'screens/user_info.dart';
+import 'screens/user_state.dart';
+
+final Future<FirebaseApp> _initialization = Firebase.initializeApp();
 
 void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: Style.themeData(),
-      home: const MyHomePage(title: 'Watchalong'),
+      home: const MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+  const MyHomePage({
+    super.key,
+  });
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+        future: _initialization,
+        builder: (
+          context,
+          snapshot,
+        ) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const MaterialApp(
+              home: Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+            );
+          } else if (snapshot.hasError) {
+            const MaterialApp(
+              home: Scaffold(
+                body: Center(
+                  child: Text('Error occurred'),
+                ),
+              ),
+            );
+          }
+
+          return const MaterialApp(
+            home: UserState(),
+          );
+        });
+  }
+}
+
+class WatchAlongHomeScreen extends StatefulWidget {
+  const WatchAlongHomeScreen({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State<WatchAlongHomeScreen> createState() => _WatchAlongStateHomeScreen();
+}
+
+class _WatchAlongStateHomeScreen extends State<WatchAlongHomeScreen> {
   int currentIndex = 0;
   FilePickerResult? result;
   String? md5Res;
@@ -46,31 +98,20 @@ class _MyHomePageState extends State<MyHomePage> {
       body: IndexedStack(index: currentIndex, children: [
         Center(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
-                child: const Text('Pick a file'),
-                onPressed: () async {
-                  result =
-                      await FilePicker.platform.pickFiles(type: FileType.video);
-                  final fileBytes =
-                      await File(result!.files.single.path!).readAsBytes();
-                  final checksum = md5.convert(fileBytes).toString();
-                  md5Res = checksum;
-                  setState(() {});
-                  // if (mounted) {
-                  //   Navigator.push(context, MaterialPageRoute(builder: ((context) {
-                  //     return Videos(filePath: result!.files.single.path!);
-                  //   })));
-                  // }
-                },
-              ),
-              Text(md5Res ?? 'searching')
+                  onPressed: () => Navigator.push(context,
+                      MaterialPageRoute(builder: ((context) => CreateARoom()))),
+                  child: Text('Create a room')),
+              ElevatedButton(
+                  onPressed: () => Navigator.push(context,
+                      MaterialPageRoute(builder: ((context) => JoinARoom()))),
+                  child: Text('Join a room')),
             ],
           ),
         ),
-        const Center(
-          child: Text('data1'),
-        )
+        const UserInfo()
       ]),
       bottomNavigationBar: NavigationBar(
         destinations: const [
