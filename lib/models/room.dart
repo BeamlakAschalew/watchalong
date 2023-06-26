@@ -9,7 +9,7 @@ class Room {
   String? roomID;
   String? roomName;
   String? createdBy;
-  int? time;
+  String? time;
   String? checksum;
 
   Room.fromJson(Map<String, dynamic> json) {

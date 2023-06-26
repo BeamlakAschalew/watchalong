@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:better_player/better_player.dart';
 import 'package:flutter/material.dart';
 import 'package:watchalong/models/room.dart';
@@ -21,40 +23,38 @@ class _VideosState extends State<Videos> {
     minBufferMs: 120000,
   );
 
-  void socketConn() {
-    // Data of the created room
-    var roomData = {
-      'createdAt': '2:19 PM',
+  int? secondsStream;
+  IO.Socket socket = IO.io("http://watchalong.doniverse.net",
+      IO.OptionBuilder().setTransports(['websocket']).build());
+
+  Timer? _timer;
+  int _currentSecond = 0;
+
+  Future<void> socketConn() async {
+    Map<String, dynamic> roomData = {
+      'createdAt': widget.room.createdBy,
       'roomID': widget.room.roomID,
       'audience': [],
       'romName': widget.room.roomName,
       'time': widget.room.time,
-      'createdBy': 'naol',
+      'createdBy': widget.room.createdBy,
     };
 
-    // 1️⃣ Configure socket connection
-    var socket = IO.io('http://watchalong.doniverse.net');
-
-    // 2️⃣ Establish socket connection
-    socket.on('connect', (_) {
-      // 3️⃣ If this user is room creator, emit the 'createRoom' event
-      // Send roomData alongside
-      socket.emit('createRoom', roomData);
+    socket.connect();
+    socket.onConnect((_) {
+      socket.emit("createRoom", roomData);
+      print('connected');
     });
 
-    // 4️⃣ 'secondStream' event is emitted as the timer counts
-    socket.on('secondStream', (msg) {
-      // msg - is an integer - it is the stream of seconds emitted
-      // from the server
-      // Use it to progress play
-      var secondsStream = msg;
+    socket.onConnectError((data) => print('connect failed $data'));
+    socket.onDisconnect((data) => print('disconnected $data'));
+
+    socket.on("secondStream", (msg) {
+      secondsStream = msg;
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-
+  Future<void> initPlayer() async {
     betterPlayerControlsConfiguration = const BetterPlayerControlsConfiguration(
       enableFullscreen: true,
       progressBarBackgroundColor: Colors.white,
@@ -99,15 +99,43 @@ class _VideosState extends State<Videos> {
     // int dur = _betterPlayerController
     //     .videoPlayerController!.value.duration!.inSeconds;
     // print(dur);
+    // _betterPlayerController.addEventsListener((p0) {
+    //   print(p0.betterPlayerEventType.name);
+    //   _betterPlayerController.videoPlayerController!
+    //       .seekTo(Duration(seconds: secondsStream!));
+    // });
+    _timer = Timer.periodic(Duration(seconds: 5), (timer) {
+      setState(() {
+        _currentSecond = _betterPlayerController
+            .videoPlayerController!.value.position.inSeconds;
+        print('currrrrrrrr seccccccc: $_currentSecond');
+      });
+      print('secondsssssssssssss $secondsStream');
+      _betterPlayerController.videoPlayerController!
+          .seekTo(Duration(seconds: secondsStream!));
+    });
+  }
+
+  void initVid() async {
+    await initPlayer();
+    await socketConn();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initVid();
   }
 
   @override
   Widget build(BuildContext context) {
+    socketConn();
     return Scaffold(
       body: Center(
         child: SizedBox(
           height: MediaQuery.of(context).size.height,
           width: double.infinity,
+          //child: Container(color: Colors.yellow),
           child: BetterPlayer(
             controller: _betterPlayerController,
           ),

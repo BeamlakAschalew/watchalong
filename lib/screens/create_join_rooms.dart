@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_video_info/flutter_video_info.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:watchalong/network.dart';
 import 'package:watchalong/ui/videos.dart';
 
@@ -29,6 +30,7 @@ class _CreateARoomState extends State<CreateARoom> {
   int? videoDuration;
   List<int>? fileBytes;
   FilePickerResult? result;
+  XFile? video;
 
   Room? room;
   final videoInfo = FlutterVideoInfo();
@@ -42,8 +44,7 @@ class _CreateARoomState extends State<CreateARoom> {
       });
       formKey.currentState!.save();
       try {
-        if ((result!.files.single.path != null) && checksum == null ||
-            videoDuration == null) {
+        if ((video != null) && checksum == null || videoDuration == null) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text(
@@ -89,14 +90,7 @@ class _CreateARoomState extends State<CreateARoom> {
                           }).then((value) async {
                             return Navigator.push(context,
                                 MaterialPageRoute(builder: ((context) {
-                              return Videos(
-                                  room: Room(
-                                      checksum: '',
-                                      createdBy: '',
-                                      roomID: '',
-                                      roomName: '',
-                                      time: 0),
-                                  filePath: result!.files.single.path!);
+                              return Videos(room: room!, filePath: video!.path);
                             })));
                           });
                         },
@@ -137,32 +131,21 @@ class _CreateARoomState extends State<CreateARoom> {
             ElevatedButton(
               child: const Text('Pick a file'),
               onPressed: () async {
-                setState(() async {
-                  result =
-                      await FilePicker.platform.pickFiles(type: FileType.video);
-                  fileBytes =
-                      await File(result!.files.single.path!).readAsBytes();
-
-                  var info =
-                      await videoInfo.getVideoInfo(result!.files.single.path!);
-                  checksum = md5.convert(fileBytes!).toString();
-                  videoDuration =
-                      Duration(milliseconds: info!.duration!.toInt()).inSeconds;
-                });
-
-                // result =
-                //     await FilePicker.platform.pickFiles(type: FileType.video);
-                // final fileBytes =
-                //     await File(result!.files.single.path!).readAsBytes();
-                // final checksum = md5.convert(fileBytes).toString();
-                // // md5Res = checksum;
-                // setState(() {});
-                // if (mounted) {
-                //   Navigator.push(context,
-                //       MaterialPageRoute(builder: ((context) {
-                //     return Videos(filePath: result!.files.single.path!);
-                //   })));
-                // }
+                try {
+                  video = await ImagePicker().pickVideo(
+                    source: ImageSource.gallery,
+                  );
+                  if (video != null) {
+                    print('vid pathhhhhhhhhhh: ${video!.path}');
+                    fileBytes = await File(video!.path).readAsBytes();
+                    setState(() {
+                      checksum = md5.convert(fileBytes!).toString();
+                    });
+                  }
+                } catch (e) {
+                  print(e);
+                }
+                setState(() {});
               },
             ),
             const Text('Enter room name'),
@@ -248,3 +231,38 @@ class JoinARoom extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
+ // result =
+                  //     await FilePicker.platform.pickFiles(type: FileType.video);
+                  // fileBytes =
+                  //     await File(result!.files.single.path!).readAsBytes();
+
+                  // var info =
+                  //     await videoInfo.getVideoInfo(result!.files.single.path!);
+                  // checksum = md5.convert(fileBytes!).toString();
+                  // videoDuration =
+                  //     Duration(milliseconds: info!.duration!.toInt()).inSeconds;
+
+
+
+
+
+
+
+ // result =
+                //     await FilePicker.platform.pickFiles(type: FileType.video);
+                // final fileBytes =
+                //     await File(result!.files.single.path!).readAsBytes();
+                // final checksum = md5.convert(fileBytes).toString();
+                // // md5Res = checksum;
+                // setState(() {});
+                // if (mounted) {
+                //   Navigator.push(context,
+                //       MaterialPageRoute(builder: ((context) {
+                //     return Videos(filePath: result!.files.single.path!);
+                //   })));
+                // }
