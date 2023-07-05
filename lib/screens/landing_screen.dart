@@ -1,4 +1,4 @@
-import 'package:animated_text_kit/animated_text_kit.dart';
+//import 'package:animated_text_kit/animated_text_kit.dart';
 import 'login_screen.dart';
 import 'signup_screen.dart';
 import 'package:flutter/material.dart';
@@ -150,15 +150,15 @@ class _LandingScreenState extends State<LandingScreen> {
     );
   }
 
-  TypewriterAnimatedText animatedTextWIdget(
-      {required String textTitle,
-      required int animationDuration,
-      required double fontSize}) {
-    return TypewriterAnimatedText(textTitle,
-        speed: Duration(milliseconds: animationDuration),
-        textStyle: TextStyle(
-          fontSize: fontSize,
-        ),
-        textAlign: TextAlign.center);
-  }
+  // TypewriterAnimatedText animatedTextWIdget(
+  //     {required String textTitle,
+  //     required int animationDuration,
+  //     required double fontSize}) {
+  //   return TypewriterAnimatedText(textTitle,
+  //       speed: Duration(milliseconds: animationDuration),
+  //       textStyle: TextStyle(
+  //         fontSize: fontSize,
+  //       ),
+  //       textAlign: TextAlign.center);
+  // }
 }

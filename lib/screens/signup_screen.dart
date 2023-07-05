@@ -149,39 +149,6 @@ class _SignupScreenState extends State<SignupScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                padding: const EdgeInsets.only(bottom: 30),
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onDoubleTap: () {
-                        setState(() {
-                          _isUserVerified = true;
-                        });
-                      },
-                      child: Hero(
-                        tag: 'logo_shadow',
-                        child: SizedBox(
-                            width: 90,
-                            height: 90,
-                            child:
-                                Image.asset('assets/images/logo_shadow.png')),
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    const Expanded(
-                      child: Text(
-                        'Signup to snyc your bookmarked Movies and TV shows with your online account.',
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 4,
-                        // style: kTextSmallHeaderStyle,
-                      ),
-                    )
-                  ],
-                ),
-              ),
               Form(
                   key: _formKey,
                   child: Column(
@@ -190,14 +157,6 @@ class _SignupScreenState extends State<SignupScreen> {
                       const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Choose your profile picture:',
-                            style: TextStyle(
-                              fontFamily: 'PoppinsSB',
-                              fontSize: 20,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
                           // SizedBox(
                           //   width: double.infinity,
                           //   height: 100,
@@ -355,10 +314,6 @@ class _SignupScreenState extends State<SignupScreen> {
                           validator: (value) {
                             if (value!.isEmpty || value.length < 7) {
                               return 'Please enter a valid Password';
-                            } else if (value == '12345678' ||
-                                value == 'qwertyuiop' ||
-                                value == 'password') {
-                              return '*In Chandler\'s voice* Could your password be any lamer? \ni.e your password is too weak';
                             }
                             return null;
                           },

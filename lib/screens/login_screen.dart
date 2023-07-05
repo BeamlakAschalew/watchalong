@@ -77,12 +77,6 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Hero(
-                      tag: 'logo_shadow',
-                      child: SizedBox(
-                          height: 150,
-                          width: 150,
-                          child: Image.asset('assets/images/logo_shadow.png'))),
                   SingleChildScrollView(
                     child: Center(
                       child: Form(

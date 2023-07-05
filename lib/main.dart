@@ -2,10 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:watchalong/constants/theme.dart';
 import 'package:file_picker/file_picker.dart';
-import 'dart:io';
-import 'package:crypto/crypto.dart';
 import 'package:watchalong/screens/create_join_rooms.dart';
-
 import 'screens/user_info.dart';
 import 'screens/user_state.dart';
 

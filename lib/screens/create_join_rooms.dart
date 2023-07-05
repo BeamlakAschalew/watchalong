@@ -5,7 +5,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_video_info/flutter_video_info.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:watchalong/network.dart';
 import 'package:watchalong/ui/videos.dart';
 
@@ -30,7 +29,7 @@ class _CreateARoomState extends State<CreateARoom> {
   int? videoDuration;
   List<int>? fileBytes;
   FilePickerResult? result;
-  XFile? video;
+  String? dirPath;
 
   Room? room;
   final videoInfo = FlutterVideoInfo();
@@ -44,7 +43,19 @@ class _CreateARoomState extends State<CreateARoom> {
       });
       formKey.currentState!.save();
       try {
-        if ((video != null) && checksum == null || videoDuration == null) {
+        if (result == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Pick a file',
+                maxLines: 3,
+                style: kTextSmallBodyStyle,
+              ),
+              duration: Duration(seconds: 3),
+            ),
+          );
+        } else if ((result!.files.single.path != null) && checksum == null ||
+            videoDuration == null) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text(
@@ -60,49 +71,57 @@ class _CreateARoomState extends State<CreateARoom> {
             SnackBar(content: Text('Pick a video file')),
           );
         } else {
-          showDialog(
-              context: context,
-              builder: ((context) {
-                return AlertDialog(
-                  title: Text('Proceed?'),
-                  content: Column(
-                    children: [
-                      Text('Room name: ${_roomName}'),
-                      Text('Filename: ${result!.files.single.name}'),
-                      Text('Duration: ${videoDuration}')
-                    ],
-                  ),
-                  actions: [
-                    TextButton(
-                        onPressed: () async {
-                          await onCreate(
-                                  roomName: _roomName!,
-                                  createdBy: 'createdBy',
-                                  time: videoDuration!,
-                                  checksum: checksum!)
-                              .then((value) {
-                            setState(() {
-                              room = value;
-                              print('gen rooooooooooom ${room}');
-                              print(
-                                  'pathhhhhhhhhhhhhhhhhhh ${result!.files.single.path!}');
-                            });
-                          }).then((value) async {
-                            return Navigator.push(context,
+          await onCreate(
+                  roomName: _roomName!,
+                  createdBy: 'createdBy',
+                  time: videoDuration!,
+                  checksum: checksum!)
+              .then((value) {
+            setState(() {
+              room = value;
+              print('gen rooooooooooom ${room}');
+              print('pathhhhhhhhhhhhhhhhhhh ${result!.files.single.path!}');
+            });
+          }).then((value) {
+            showDialog(
+                context: context,
+                builder: ((context) {
+                  return AlertDialog(
+                    title: Text('Proceed?'),
+                    content: Column(
+                      children: [
+                        Text('Room name: ${_roomName}'),
+                        Text('Filename: ${result!.files.single.name}'),
+                        Text('Duration: ${videoDuration}'),
+                        Text('Room id: ${room!.roomID} coming from server'),
+                        Text('Room name: ${room!.roomName} coming form server'),
+                        Text('Room time: ${room!.time} coming form server'),
+                        Text(
+                            'Room checksum: ${room!.checksum} coming form server'),
+                        Text(
+                            'Room creator: ${room!.createdBy} coming form server'),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                          onPressed: () async {
+                            Navigator.push(context,
                                 MaterialPageRoute(builder: ((context) {
-                              return Videos(room: room!, filePath: video!.path);
+                              return Videos(
+                                  room: room!,
+                                  file: result!.files.single.path!);
                             })));
-                          });
-                        },
-                        child: Text('Goto player')),
-                    TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text('Cancel'))
-                  ],
-                );
-              }));
+                          },
+                          child: Text('Goto player')),
+                      TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text('Cancel'))
+                    ],
+                  );
+                }));
+          });
         }
       } on Exception catch (error) {
         print('error occured $error}');
@@ -118,6 +137,7 @@ class _CreateARoomState extends State<CreateARoom> {
 
   @override
   Widget build(BuildContext context) {
+    //  print(dirPath);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Create a room'),
@@ -132,20 +152,35 @@ class _CreateARoomState extends State<CreateARoom> {
               child: const Text('Pick a file'),
               onPressed: () async {
                 try {
-                  video = await ImagePicker().pickVideo(
-                    source: ImageSource.gallery,
-                  );
-                  if (video != null) {
-                    print('vid pathhhhhhhhhhh: ${video!.path}');
-                    fileBytes = await File(video!.path).readAsBytes();
-                    setState(() {
-                      checksum = md5.convert(fileBytes!).toString();
-                    });
-                  }
+                  // final status = await Permission.storage.status;
+                  // print(status);
+                  // if (status != PermissionStatus.granted) {
+                  //   throw 'Storage permission denied';
+                  // }
+
+                  // Get root storage directory
+                  //final directory = await getApplicationSupportDirectory();
+                  //  dirPath = await FilePicker.platform.getDirectoryPath();
+                  // String path = directory.path;
+                  // print(path);
+                  //  print(dirPath);
+                  result =
+                      await FilePicker.platform.pickFiles(type: FileType.video);
+                  print(result!.files.single.path!);
+                  fileBytes =
+                      await File(result!.files.single.path!).readAsBytes();
+
+                  var info =
+                      await videoInfo.getVideoInfo(result!.files.single.path!);
+                  setState(() {
+                    checksum = md5.convert(fileBytes!).toString();
+                    videoDuration =
+                        Duration(milliseconds: info!.duration!.toInt())
+                            .inSeconds;
+                  });
                 } catch (e) {
                   print(e);
                 }
-                setState(() {});
               },
             ),
             const Text('Enter room name'),
