@@ -9,9 +9,14 @@ import 'package:watchalong/models/room.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class Videos extends StatefulWidget {
-  const Videos({super.key, required this.file, required this.room});
+  const Videos(
+      {super.key,
+      required this.file,
+      required this.room,
+      required this.isCreator});
   final String file;
   final Room room;
+  final bool isCreator;
 
   @override
   State<Videos> createState() => _VideosState();
@@ -45,48 +50,24 @@ class _VideosState extends State<Videos> {
 
     socket.connect();
     socket.onConnect((_) {
-      socket.emit("createRoom", roomData);
+      if (widget.isCreator) {
+        socket.emit("createRoom", roomData);
+      } else {
+        socket.emit("joinRoom", roomData);
+      }
       print('connected');
       socket.on("secondStream", (msg) async {
         secondsStream = msg;
-        //   print("Emitted second: ${secondsStream}");
-
-        // _betterPlayerController.videoPlayerController!
-        //     .seekTo(Duration(seconds: secondsStream! - 1));
-        // print(DateTime.now());
-        // print(secondsStream!);
-        // if (chewieController != null) {
-        //   chewieController!.seekTo(Duration(seconds: (secondsStream! - 2)));
-        // }
         print('Secondsssssssssss $secondsStream');
-        // Duration? difference = Duration(seconds: secondsStream!) -
-        //     (await _betterPlayerController.videoPlayerController!.position)!;
         if (secondsStream! % 10 == 0) {
           _betterPlayerController.videoPlayerController!
               .seekTo(Duration(seconds: ((secondsStream!))));
         }
-        //    _betterPlayerController.videoPlayerController!.seekTo(difference);
       });
     });
 
     socket.onConnectError((data) => print('connect failed $data'));
-    socket.onDisconnect((data) => print('disconnected $data'));
-
-    // socket.on("secondStream", (msg) {
-    //   _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-    //     secondsStream = msg;
-    //     print("Emitted second: $secondsStream");
-
-    //     if (secondsStream % 2 == 0) {
-    //       _betterPlayerController.videoPlayerController!
-    //           .seekTo(Duration(seconds: secondsStream!));
-    //     }
-    //   });
-    // });
-
-    // _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-    //   print('timer');
-    // });
+    socket.onDisconnect((data) => print('disconnectedddd $data'));
   }
 
   Future<void> secondSeek() async {
@@ -100,16 +81,11 @@ class _VideosState extends State<Videos> {
 
   @override
   void dispose() {
-    // videoPlayerController!.dispose();
-    // chewieController!.dispose();
-    socket.clearListeners();
-    socket.disconnect();
-    socket.destroy();
+    // socket.clearListeners();
+    // socket.disconnect();
+    // socket.destroy();
     super.dispose();
   }
-
-  // ChewieController? chewieController;
-  // VideoPlayerController? videoPlayerController;
 
   Future<void> initPlayer() async {
     betterPlayerControlsConfiguration = const BetterPlayerControlsConfiguration(
@@ -141,46 +117,15 @@ class _VideosState extends State<Videos> {
     BetterPlayerDataSource dataSource = BetterPlayerDataSource(
       BetterPlayerDataSourceType.file,
       widget.file,
-      // cacheConfiguration: const BetterPlayerCacheConfiguration(
-      //   useCache: true,
-      //   preCacheSize: 471859200 * 471859200,
-      //   maxCacheSize: 1073741824 * 1073741824,
-      //   maxCacheFileSize: 471859200 * 471859200,
-
-      //   ///Android only option to use cached video between app sessions
-      //   key: "testCacheKey",
-      // ),
-      /*bufferingConfiguration: betterPlayerBufferingConfiguration*/
     );
     _betterPlayerController = BetterPlayerController(betterPlayerConfiguration);
     _betterPlayerController.setupDataSource(dataSource);
-    // int dur = _betterPlayerController
-    //     .videoPlayerController!.value.duration!.inSeconds;
-    // print(dur);
-    // _betterPlayerController.addEventsListener((p0) {
-    //   print(p0.betterPlayerEventType.name);
-    //   _betterPlayerController.videoPlayerController!
-    //       .seekTo(Duration(seconds: secondsStream!));
-    // });
-
-    // videoPlayerController = VideoPlayerController.file(widget.file);
-
-    // await videoPlayerController!.initialize();
-
-    // setState(() {
-    //   chewieController = ChewieController(
-    //     videoPlayerController: videoPlayerController!,
-    //     autoPlay: true,
-    //     looping: true,
-    //   );
-    // });
   }
 
   void initVid() async {
     print(widget.file);
     await initPlayer();
     await socketConn();
-    // await secondSeek();
   }
 
   @override
@@ -197,12 +142,6 @@ class _VideosState extends State<Videos> {
         child: SizedBox(
           height: MediaQuery.of(context).size.height,
           width: double.infinity,
-          //child: Container(color: Colors.yellow),
-          // child: chewieController == null
-          //     ? Center(child: CircularProgressIndicator())
-          //     : Chewie(
-          //         controller: chewieController!,
-          //       ),
           child: BetterPlayer(
             controller: _betterPlayerController,
           ),

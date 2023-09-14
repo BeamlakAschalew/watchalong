@@ -71,7 +71,7 @@ class _LandingScreenState extends State<LandingScreen> {
                               child: Text(
                                 'Have fun with your friends',
                                 style: TextStyle(
-                                  color: Colors.black,
+                                  color: Colors.white,
                                   fontSize: 20,
                                 ),
                                 textAlign: TextAlign.center,
@@ -100,8 +100,8 @@ class _LandingScreenState extends State<LandingScreen> {
                                   borderRadius: BorderRadius.circular(20.0),
                                 ),
                               ),
-                              backgroundColor: MaterialStateProperty.all(
-                                  const Color(0xFFf57c00))),
+                              backgroundColor:
+                                  MaterialStateProperty.all(Color(0xFFeb4034))),
                           onPressed: () async {
                             // updateFirstRunData();
                             Navigator.push(context,

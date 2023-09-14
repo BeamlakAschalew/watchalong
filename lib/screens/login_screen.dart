@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:watchalong/main.dart';
 import '/services/global_method.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -38,7 +39,12 @@ class _LoginScreenState extends State<LoginScreen> {
             .signInWithEmailAndPassword(
                 email: emailAddress.toLowerCase().trim(),
                 password: password.trim())
-            .then((value) => Navigator.canPop(context) ? '' : null);
+            .then((value) => Navigator.canPop(context)
+                ? Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: ((context) {
+                    return WatchAlongHomeScreen(title: 'Watchalong');
+                  })))
+                : null);
       } on FirebaseAuthException catch (error) {
         if (error.code == 'wrong-password') {
           globalMethods.authErrorHandle(

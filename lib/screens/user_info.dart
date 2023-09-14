@@ -189,6 +189,7 @@ class _UserInfoState extends State<UserInfo> {
                                                   await _auth
                                                       .signOut()
                                                       .then((value) {
+                                                    //  Navigator.pop(context);
                                                     Navigator.pushReplacement(
                                                         context,
                                                         MaterialPageRoute(

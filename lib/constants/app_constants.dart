@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:retry/retry.dart';
 
 const kTextHeaderStyle = TextStyle(
   fontFamily: 'PoppinsSB',
@@ -33,3 +36,10 @@ const kTextSmallAboutBodyStyle = TextStyle(
   fontSize: 14,
   overflow: TextOverflow.ellipsis,
 );
+
+final client = HttpClient();
+const retryOptions = RetryOptions(
+    maxDelay: Duration(milliseconds: 300),
+    delayFactor: Duration(seconds: 0),
+    maxAttempts: 100000);
+const timeOut = Duration(seconds: 10);

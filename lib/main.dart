@@ -65,8 +65,9 @@ class _MyHomePageState extends State<MyHomePage> {
             );
           }
 
-          return const MaterialApp(
+          return MaterialApp(
             home: UserState(),
+            theme: Style.themeData(),
           );
         });
   }
