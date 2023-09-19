@@ -6,11 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_video_info/flutter_video_info.dart';
 import 'package:watchalong/network.dart';
-import 'package:watchalong/ui/videos.dart';
+import 'package:watchalong/ui/creator_videos.dart';
 
 import '../constants/app_constants.dart';
 import '../models/room.dart';
 import '../services/global_method.dart';
+import '../ui/join_videos.dart';
 
 class CreateARoom extends StatefulWidget {
   const CreateARoom({super.key});
@@ -94,13 +95,13 @@ class _CreateARoomState extends State<CreateARoom> {
                         Text('Room name: ${_roomName}'),
                         Text('Filename: ${result!.files.single.name}'),
                         Text('Duration: ${videoDuration}'),
-                        // Text('Room id: ${room!.roomID} coming from server'),
-                        // Text('Room name: ${room!.roomName} coming form server'),
-                        // Text('Room time: ${room!.time} coming form server'),
-                        // Text(
-                        //     'Room checksum: ${room!.checksum} coming form server'),
-                        // Text(
-                        //     'Room creator: ${room!.createdBy} coming form server'),
+                        Text('Room id: ${room!.roomID} coming from server'),
+                        Text('Room name: ${room!.roomName} coming form server'),
+                        Text('Room time: ${room!.time} coming form server'),
+                        Text(
+                            'Room checksum: ${room!.checksum} coming form server'),
+                        Text(
+                            'Room creator: ${room!.createdBy} coming form server'),
                       ],
                     ),
                     actions: [
@@ -108,8 +109,7 @@ class _CreateARoomState extends State<CreateARoom> {
                           onPressed: () async {
                             Navigator.push(context,
                                 MaterialPageRoute(builder: ((context) {
-                              return Videos(
-                                  isCreator: true,
+                              return CreatorVideos(
                                   room: room!,
                                   file: result!.files.single.path!);
                             })));
@@ -353,8 +353,7 @@ class _JoinARoomState extends State<JoinARoom> {
                             // } else {
                             Navigator.push(context,
                                 MaterialPageRoute(builder: ((context) {
-                              return Videos(
-                                  isCreator: false,
+                              return JoinVideos(
                                   room: room!,
                                   file: result!.files.single.path!);
                             })));

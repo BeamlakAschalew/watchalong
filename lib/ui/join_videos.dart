@@ -8,21 +8,19 @@ import 'package:flutter/material.dart';
 import 'package:watchalong/models/room.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
-class Videos extends StatefulWidget {
-  const Videos(
+class JoinVideos extends StatefulWidget {
+  const JoinVideos(
       {super.key,
       required this.file,
-      required this.room,
-      required this.isCreator});
+      required this.room,});
   final String file;
   final Room room;
-  final bool isCreator;
 
   @override
-  State<Videos> createState() => _VideosState();
+  State<JoinVideos> createState() => _JoinVideosState();
 }
 
-class _VideosState extends State<Videos> {
+class _JoinVideosState extends State<JoinVideos> {
   late BetterPlayerController _betterPlayerController;
   late BetterPlayerControlsConfiguration betterPlayerControlsConfiguration;
   late BetterPlayerBufferingConfiguration betterPlayerBufferingConfiguration =
@@ -50,11 +48,7 @@ class _VideosState extends State<Videos> {
 
     socket.connect();
     socket.onConnect((_) {
-      if (widget.isCreator) {
-        socket.emit("createRoom", roomData);
-      } else {
         socket.emit("joinRoom", roomData);
-      }
       print('connected');
       socket.on("secondStream", (msg) async {
         secondsStream = msg;
